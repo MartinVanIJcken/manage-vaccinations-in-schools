@@ -46,6 +46,7 @@ class CommitPatientChangesetsJob
       to_skip.each(&:processed!)
 
       PatientTeamUpdater.call(patient_scope: import.patients)
+      PatientStatusUpdater.call(patient_scope: import.patients)
     end
 
     if finished_committing_changesets?(import)
