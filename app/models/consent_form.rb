@@ -312,6 +312,10 @@ class ConsentForm < ApplicationRecord
     validates :reason_for_refusal_notes, presence: true
   end
 
+  on_wizard_step :follow_up_discussion, exact: true do
+    validates :follow_up_requested, inclusion: { in: [true, false] }
+  end
+
   on_wizard_step :address do
     validates :address_line_1, presence: true
     validates :address_town, presence: true
@@ -323,6 +327,12 @@ class ConsentForm < ApplicationRecord
   end
 
   ETHNICITY_STEPS = %i[ethnicity ethnic_group ethnic_background].freeze
+  FOLLOW_UP_REQUIRED_REASONS = %w[
+    contains_gelatine
+    medical_reasons
+    personal_choice
+    other
+  ].freeze
 
   def ethnicity_steps = ETHNICITY_STEPS
 
@@ -353,6 +363,11 @@ class ConsentForm < ApplicationRecord
             :reason_for_refusal_notes
           end
         ),
+        (
+          if refused_and_not_given && qualifies_for_follow_up_discussion?
+            :follow_up_discussion
+          end
+        ),
         (:injection_alternative if can_offer_injection_as_alternative?),
         (:address if response_given?),
         (:health_question if response_given?),
@@ -360,6 +375,11 @@ class ConsentForm < ApplicationRecord
         (
           if refused_and_given && reason_for_refusal_requires_notes?
             :reason_for_refusal_notes
+          end
+        ),
+        (
+          if refused_and_given && qualifies_for_follow_up_discussion?
+            :follow_up_discussion
           end
         )
       ].compact +
@@ -568,6 +588,22 @@ class ConsentForm < ApplicationRecord
     consent_form_programmes
       .select(&:response_refused?)
       .each { it.notes = value }
+  end
+
+  def follow_up_requested
+    consent_form_programmes.find(&:response_refused?)&.follow_up_requested
+  end
+
+  def follow_up_requested=(value)
+    consent_form_programmes
+      .select(&:response_refused?)
+      .each do
+        it.follow_up_requested = ActiveModel::Type::Boolean.new.cast(value)
+      end
+  end
+
+  def qualifies_for_follow_up_discussion?
+    reason_for_refusal.in?(FOLLOW_UP_REQUIRED_REASONS)
   end
 
   def update_programme_responses
@@ -780,10 +816,10 @@ class ConsentForm < ApplicationRecord
     self.parent_relationship_other_name = nil unless parent_relationship_other?
 
     consent_form_programmes.each do
-      if it.response_given?
-        it.reason_for_refusal = nil
-        it.notes = ""
-      end
+      next unless it.response_given?
+      it.reason_for_refusal = nil
+      it.notes = ""
+      it.follow_up_requested = nil
     end
 
     if school_confirmed

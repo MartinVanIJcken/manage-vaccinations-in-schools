@@ -202,6 +202,7 @@ class Consent < ApplicationRecord
             academic_year: consent_form.academic_year,
             consent_form:,
             disease_types: consent_form_programme.disease_types,
+            follow_up_requested: consent_form_programme.follow_up_requested,
             health_answers: consent_form.health_answers,
             notes: consent_form_programme.notes,
             parent:,

@@ -163,6 +163,7 @@ module ParentInterface
           parent_relationship_type
           parental_responsibility
         ],
+        follow_up_discussion: %i[follow_up_requested],
         reason_for_refusal: %i[reason_for_refusal],
         reason_for_refusal_notes: %i[reason_for_refusal_notes],
         response_doubles: %i[response chosen_programme],
