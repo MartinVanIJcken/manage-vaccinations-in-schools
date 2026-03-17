@@ -216,11 +216,19 @@ class AppActivityLogComponent < ViewComponent::Base
     consents.flat_map do |consent|
       events = []
 
-      original_response = consent.withdrawn? ? "given" : consent.response
+      original_response =
+        if consent.withdrawn?
+          "given"
+        elsif consent.follow_up_requested?
+          "follow_up_requested"
+        else
+          consent.response
+        end
+      human_response = Consent.human_enum_name(:response, original_response)
 
       events << if (consent_form = consent.consent_form)
         {
-          title: "Consent #{original_response}",
+          title: human_response,
           at: consent_form.recorded_at,
           by: consent_form.parent_relationship.label_with_parent,
           programmes: [consent.programme]
@@ -228,7 +236,7 @@ class AppActivityLogComponent < ViewComponent::Base
       else
         {
           title:
-            "Consent #{original_response} by #{consent.name} (#{consent.who_responded.downcase_first})",
+            "#{human_response} by #{consent.name} (#{consent.who_responded.downcase_first})",
           at: consent.submitted_at,
           by: consent.recorded_by,
           programmes: [consent.programme]
