@@ -724,9 +724,7 @@ class Patient < ApplicationRecord
         # Patients that have been duplicated from another won't have any
         #  vaccination records or imports, therefore we need to filter the
         #  sources.
-        sources =
-          patient_team.sources &
-            %w[patient_location school_move_school school_move_team]
+        sources = patient_team.sources & %w[patient_location school_move_school]
 
         new_patient.patient_teams.build(team_id: patient_team.team_id, sources:)
       end
