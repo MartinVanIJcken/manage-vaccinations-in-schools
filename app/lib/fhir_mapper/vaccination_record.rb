@@ -11,6 +11,9 @@ module FHIRMapper
 
     MILLILITER_SUB_STRINGS = %w[ml millilitre milliliter].freeze
 
+    BATCH_EXPIRY_MIN = Date.new(Date.current.year - 100, 1, 1)
+    BATCH_EXPIRY_MAX = Date.new(Date.current.year + 100, 1, 1)
+
     def initialize(vaccination_record)
       @vaccination_record = vaccination_record
     end
@@ -109,7 +112,11 @@ module FHIRMapper
 
       attrs[:vaccine] = Vaccine.from_fhir_record(fhir_record)
       attrs[:batch_number] = fhir_record.lotNumber&.to_s
-      attrs[:batch_expiry] = fhir_record.expirationDate&.to_date
+
+      batch_expiry = fhir_record.expirationDate&.to_date
+      attrs[:batch_expiry] = batch_expiry if (
+        BATCH_EXPIRY_MIN...BATCH_EXPIRY_MAX
+      ).cover?(batch_expiry)
 
       if attrs[:vaccine]
         attrs[:disease_types] = attrs[:vaccine].disease_types

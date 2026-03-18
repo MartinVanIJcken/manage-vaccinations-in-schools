@@ -522,6 +522,42 @@ describe FHIRMapper::VaccinationRecord do
         end
       end
 
+      describe "the parsed batch_expiry value" do
+        subject { record.batch_expiry }
+
+        let(:fixture_file_name) { "fhir/flu/fhir_record_full.json" }
+
+        before do
+          allow(fhir_immunization).to receive(:expirationDate).and_return(
+            expiration_date
+          )
+        end
+
+        context "when the expiry date is realistic" do
+          let(:expiration_date) { "2026-07-02" }
+
+          it { should eq Date.new(2026, 7, 2) }
+        end
+
+        context "when the expiry date is after 2100" do
+          let(:expiration_date) { "9999-12-31" }
+
+          it { should be_nil }
+        end
+
+        context "when the expiry date is before 1900" do
+          let(:expiration_date) { "1899-12-31" }
+
+          it { should be_nil }
+        end
+
+        context "when the expiry date is nil" do
+          let(:expiration_date) { nil }
+
+          it { should be_nil }
+        end
+      end
+
       context "with a full fhir record" do
         let(:fixture_file_name) { "fhir/flu/fhir_record_full.json" }
 
