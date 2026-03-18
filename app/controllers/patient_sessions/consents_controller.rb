@@ -101,6 +101,12 @@ class PatientSessions::ConsentsController < PatientSessions::BaseController
         )
       end
 
+      @consent.notifier.send_confirmation(
+        session: @session,
+        triage: nil,
+        sent_by: current_user
+      )
+
       redirect_to session_patient_programme_consent_path,
                   flash: {
                     success: "Consent from #{@consent.name} updated."
@@ -163,7 +169,7 @@ class PatientSessions::ConsentsController < PatientSessions::BaseController
       @patient
         .consents
         .where(academic_year: @session.academic_year)
-        .includes(:consent_form, :parent, patient: :parent_relationships)
+        .includes(:consent_form, :parent, :team, patient: :parent_relationships)
         .find(params[:id])
   end
 
