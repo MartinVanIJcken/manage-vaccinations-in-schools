@@ -447,6 +447,10 @@ en:
               blank: Choose a file
         consent:
           attributes:
+            confirmed:
+              blank: Select yes or no
+            decision_stands:
+              blank: Select yes or no
             notes:
               blank: Enter notes
               too_long: Enter notes that are less than %{count} characters long
