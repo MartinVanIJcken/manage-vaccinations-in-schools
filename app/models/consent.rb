@@ -66,6 +66,8 @@ class Consent < ApplicationRecord
   include Notable
   include Refusable
 
+  attr_accessor :confirmed, :decision_stands
+
   audited associated_with: :patient
 
   belongs_to :patient
@@ -137,6 +139,12 @@ class Consent < ApplicationRecord
   def can_invalidate?
     not_invalidated?
   end
+
+  def can_follow_up?
+    not_invalidated? && refusal_with_follow_up?
+  end
+
+  def follow_up_resolved? = follow_up_resolved_at.present?
 
   def responded_at
     invalidated_at || withdrawn_at || submitted_at
@@ -243,6 +251,23 @@ class Consent < ApplicationRecord
         notify_parents:
           VaccinationNotificationCriteria.call(vaccination_record:)
       )
+    end
+  end
+
+  def resolve_follow_up!(outcome:, notes: nil, invalidate: false)
+    ActiveRecord::Base.transaction do
+      attrs = {
+        follow_up_requested: false,
+        follow_up_outcome: outcome,
+        follow_up_resolved_at: Time.current
+      }
+
+      attrs[:invalidated_at] = Time.current if invalidate
+      attrs[:notes] = notes if notes.present?
+
+      update!(attrs)
+
+      PatientStatusUpdater.call(patient: patient)
     end
   end
 
