@@ -82,7 +82,7 @@ module FHIRMapper
 
       location_system = fhir_record.location.identifier.system
       location_value = fhir_record.location.identifier.value
-      unless location_value == "X99999"
+      unless location_value == FHIRMapper::Location::UNKNOWN_IDENTIFIER
         case location_system
         when "https://fhir.hl7.org.uk/Id/urn-school-number"
           attrs[:location] = ::Location.find_by(urn: location_value)
@@ -91,11 +91,12 @@ module FHIRMapper
         end
       end
 
-      if attrs[:location].nil?
-        attrs[:location_name] = fhir_record.location.identifier.value
-      end
+      attrs[:location_name] = location_value if attrs[:location].nil?
 
-      attrs[:performed_ods_code] = org_performer_ods_code_from_fhir(fhir_record)
+      performer_ods_code = org_performer_ods_code_from_fhir(fhir_record)
+      unless performer_ods_code == FHIRMapper::Location::UNKNOWN_IDENTIFIER
+        attrs[:performed_ods_code] = performer_ods_code
+      end
 
       user_performer_name = user_performer_name_from_fhir(fhir_record)
       attrs[:performed_by_given_name] = user_performer_name&.given&.first

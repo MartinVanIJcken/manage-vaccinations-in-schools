@@ -494,6 +494,34 @@ describe FHIRMapper::VaccinationRecord do
         end
       end
 
+      describe "the parsed performed_ods_code value" do
+        subject { record.performed_ods_code }
+
+        let(:fixture_file_name) { "fhir/flu/fhir_record_full.json" }
+
+        before do
+          allow(
+            fhir_immunization
+              .performer
+              .find { it.actor&.type == "Organization" }
+              .actor
+              .identifier
+          ).to receive(:value).and_return(ods_code)
+        end
+
+        context "when the org performer ODS code is a real code" do
+          let(:ods_code) { "B0C4P" }
+
+          it { should eq "B0C4P" }
+        end
+
+        context "when the org performer ODS code is a placeholder" do
+          let(:ods_code) { FHIRMapper::Location::UNKNOWN_IDENTIFIER }
+
+          it { should be_nil }
+        end
+      end
+
       context "with a full fhir record" do
         let(:fixture_file_name) { "fhir/flu/fhir_record_full.json" }
 
@@ -688,7 +716,11 @@ describe FHIRMapper::VaccinationRecord do
         its(:delivery_method) { should eq "intramuscular" }
         its(:delivery_site) { should eq "left_arm_upper_position" }
         its(:full_dose) { should be true }
-        its(:location_name) { should eq "X99999" }
+
+        its(:location_name) do
+          should eq FHIRMapper::Location::UNKNOWN_IDENTIFIER
+        end
+
         its(:outcome) { should eq "administered" }
         its(:performed_ods_code) { should eq "B0C4P" }
         its(:nhs_immunisations_api_primary_source) { should be true }
@@ -855,7 +887,10 @@ describe FHIRMapper::VaccinationRecord do
         its(:nhs_immunisations_api_primary_source) { should be true }
 
         its(:location) { should be_nil }
-        its(:location_name) { should eq "X99999" }
+
+        its(:location_name) do
+          should eq FHIRMapper::Location::UNKNOWN_IDENTIFIER
+        end
 
         its(:notes) { should be_nil }
       end
