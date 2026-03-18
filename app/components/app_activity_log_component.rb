@@ -219,7 +219,7 @@ class AppActivityLogComponent < ViewComponent::Base
       original_response =
         if consent.withdrawn?
           "given"
-        elsif consent.follow_up_requested?
+        elsif consent.follow_up_requested? || consent.follow_up_resolved?
           "follow_up_requested"
         else
           consent.response
@@ -252,7 +252,7 @@ class AppActivityLogComponent < ViewComponent::Base
         }
       end
 
-      if consent.invalidated?
+      if consent.invalidated? && !consent.follow_up_resolved?
         events << {
           title: "Consent from #{consent.name} invalidated",
           at: consent.invalidated_at,
@@ -264,6 +264,16 @@ class AppActivityLogComponent < ViewComponent::Base
         events << {
           title: "Consent from #{consent.name} withdrawn",
           at: consent.withdrawn_at,
+          programmes: [consent.programme]
+        }
+      end
+
+      if consent.follow_up_resolved?
+        events << {
+          title:
+            "Consent response from #{consent.name} (#{consent.who_responded.downcase_first}) " \
+              "followed-up: refusal #{consent.follow_up_outcome}",
+          at: consent.follow_up_resolved_at,
           programmes: [consent.programme]
         }
       end
