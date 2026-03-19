@@ -832,16 +832,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_30_075335) do
   create_table "school_moves", force: :cascade do |t|
     t.integer "academic_year", null: false
     t.datetime "created_at", null: false
-    t.boolean "home_educated"
     t.bigint "patient_id", null: false
     t.bigint "school_id", null: false
     t.integer "source", null: false
-    t.bigint "team_id"
     t.datetime "updated_at", null: false
     t.index ["patient_id", "school_id"], name: "index_school_moves_on_patient_id_and_school_id"
     t.index ["patient_id"], name: "index_school_moves_on_patient_id", unique: true
     t.index ["school_id"], name: "index_school_moves_on_school_id"
-    t.index ["team_id"], name: "index_school_moves_on_team_id"
   end
 
   create_table "session_notifications", force: :cascade do |t|
@@ -1176,7 +1173,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_30_075335) do
   add_foreign_key "school_move_log_entries", "users"
   add_foreign_key "school_moves", "locations", column: "school_id"
   add_foreign_key "school_moves", "patients"
-  add_foreign_key "school_moves", "teams"
   add_foreign_key "session_notifications", "patients"
   add_foreign_key "session_notifications", "sessions"
   add_foreign_key "session_notifications", "users", column: "sent_by_user_id"
