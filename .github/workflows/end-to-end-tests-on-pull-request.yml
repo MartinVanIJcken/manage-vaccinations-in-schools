@@ -18,7 +18,7 @@ jobs:
     secrets: inherit
 
   local-e2e-flow:
-    if: github.event.pull_request.head.repo.full_name != github.repository
+    if: github.event.pull_request.head.repo.full_name == github.repository
     name: Local E2E tests
     uses: ./.github/workflows/end-to-end-tests-local.yml
 
