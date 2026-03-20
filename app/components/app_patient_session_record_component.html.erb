@@ -1,34 +1,36 @@
-<%= form_with(
-     model: form,
-     url:,
-     method: :post,
-     class: "nhsuk-card",
-     builder: MavisFormBuilder,
-   ) do |f| %>
-  <%= f.mavis_error_summary %>
+<% if policy(vaccination_record).new? %>
+  <%= render AppCardComponent.new(section: true) do |card| %>
+    <% card.with_heading(level: 2) { heading } %>
 
-  <%= render AppCardComponent.new() do |card| %>
-    <section>
-      <h4 class="nhsuk-card__heading nhsuk-heading-s">
-        Pre-screening checks
-      </h4>
+    <%= form_with(
+          model: vaccinate_form,
+          url:,
+          method: :post,
+          builder: MavisFormBuilder,
+        ) do |f| %>
+      <%= f.mavis_error_summary %>
 
-      <%= f.govuk_radio_buttons_fieldset :identity_check_confirmed_by_patient,
-                                         legend: { text: "Has #{patient.given_name} confirmed their identity?", size: nil } do %>
-
-        <%= f.govuk_radio_button :identity_check_confirmed_by_patient, true, label: { text: "Yes" }, checked: true, link_errors: true %>
-
+      <%= f.govuk_radio_buttons_fieldset(
+            :identity_check_confirmed_by_patient,
+            legend: { text: "Has #{patient.given_name} confirmed their identity?", size: "s" },
+          ) do %>
+        <%= f.govuk_radio_button :identity_check_confirmed_by_patient, true,
+                                 label: { text: "Yes" },
+                                 checked: true,
+                                 link_errors: true %>
         <%= f.govuk_radio_button :identity_check_confirmed_by_patient, false,
                                  label: { text: "No, it was confirmed by somebody else" } do %>
-
           <%= f.govuk_text_field :identity_check_confirmed_by_other_name,
-                                 label: { text: "What is the person’s name?" } %>
-
+                                 label: { text: "What is the person's name?" } %>
           <%= f.govuk_text_field :identity_check_confirmed_by_other_relationship,
                                  label: { text: "What is their relationship to the child?" },
                                  hint: { text: "For example, parent, teacher or teaching assistant" } %>
         <% end %>
       <% end %>
+      
+      <hr class="nhsuk-section-break nhsuk-section-break--visible nhsuk-section-break--m">
+
+      <h4 class="nhsuk-heading-s">Pre-screening checks</h4>
 
       <p>Have you checked that <%= patient.given_name %>:</p>
 
@@ -48,37 +50,36 @@
       </ul>
 
       <%= f.govuk_check_boxes_fieldset :pre_screening_confirmed, multiple: false, legend: nil do %>
-        <%= f.govuk_check_box :pre_screening_confirmed, 1, 0, multiple: false, link_errors: true,
-                                                              label: { text: "I have checked that the above statements are true" } %>
+        <%= f.govuk_check_box :pre_screening_confirmed, 1, 0,
+                              multiple: false,
+                              link_errors: true,
+                              label: { text: "I have checked that the above statements are true" } %>
       <% end %>
 
-      <%= f.govuk_text_area :pre_screening_notes, label: { text: "Pre-screening notes (optional)" }, rows: 3 %>
+      <%= f.govuk_text_area :pre_screening_notes,
+                            label: { text: "Pre-screening notes (optional)" },
+                            rows: 3 %>
 
       <% if show_supplied_by_user_id_outside_vaccine_method? %>
         <%= f.govuk_select :supplied_by_user_id,
                            label: { text: "Which nurse identified and pre-screened the child and supplied the vaccine?" },
                            data: { module: "app-autocomplete" } do %>
           <%= tag.option "", value: "" %>
-          <% form.supplied_by_users.each do |user| %>
+          <% vaccinate_form.supplied_by_users.each do |user| %>
             <%= tag.option user.full_name,
                            value: user.id,
-                           selected: user.id == form.supplied_by_user_id,
+                           selected: user.id == vaccinate_form.supplied_by_user_id,
                            data: { hint: user.email } %>
           <% end %>
         <% end %>
       <% end %>
-    </section>
 
-    <hr class="nhsuk-section-break nhsuk-section-break--visible nhsuk-section-break--l">
-
-    <section>
-      <h4 class="nhsuk-card__heading nhsuk-heading-s">
-        Is <%= patient.given_name %> ready for their <%= vaccination_name %>?
-      </h4>
+      <hr class="nhsuk-section-break nhsuk-section-break--visible nhsuk-section-break--l">
 
       <% hint = "Pre-screening checks must be completed for vaccination to go ahead" %>
 
-      <%= f.govuk_radio_buttons_fieldset :vaccine_method, legend: nil do %>
+      <%= f.govuk_radio_buttons_fieldset :vaccine_method,
+                                         legend: { text: "Is #{patient.given_name} ready for their #{vaccination_name}?", size: "s" } do %>
         <% vaccine_methods.each_with_index do |vaccine_method, index| %>
           <% if index == 1 %>
             <%= f.govuk_radio_divider %>
@@ -93,16 +94,19 @@
           <% options = common_delivery_site_options(vaccine_method) %>
 
           <% if options.length > 1 || show_supplied_by_user_id_inside_vaccine_method?(vaccine_method) %>
-            <%= f.govuk_radio_button :vaccine_method, vaccine_method, label: { text: label }, hint: { text: hint }, link_errors: index.zero? do %>
+            <%= f.govuk_radio_button :vaccine_method, vaccine_method,
+                                     label: { text: label },
+                                     hint: { text: hint },
+                                     link_errors: index.zero? do %>
               <% if show_supplied_by_user_id_inside_vaccine_method?(vaccine_method) %>
                 <%= f.govuk_select :supplied_by_user_id,
                                    label: { text: "Which nurse identified and pre-screened the child and supplied the vaccine?" },
                                    data: { module: "app-autocomplete" } do %>
                   <%= tag.option "", value: "" %>
-                  <% form.supplied_by_users.each do |user| %>
+                  <% vaccinate_form.supplied_by_users.each do |user| %>
                     <%= tag.option user.full_name,
                                    value: user.id,
-                                   selected: user.id == form.supplied_by_user_id,
+                                   selected: user.id == vaccinate_form.supplied_by_user_id,
                                    data: { hint: user.email } %>
                   <% end %>
                 <% end %>
@@ -120,7 +124,10 @@
               <% end %>
             <% end %>
           <% else %>
-            <%= f.govuk_radio_button :vaccine_method, vaccine_method, label: { text: label }, hint: { text: hint }, link_errors: index.zero? %>
+            <%= f.govuk_radio_button :vaccine_method, vaccine_method,
+                                     label: { text: label },
+                                     hint: { text: hint },
+                                     link_errors: index.zero? %>
           <% end %>
 
           <% if index.zero? %>
@@ -133,6 +140,6 @@
       <%= f.hidden_field :programme_type, value: programme.type %>
 
       <%= f.govuk_submit "Continue", class: "nhsuk-u-margin-bottom-0" %>
-    </section>
+    <% end %>
   <% end %>
 <% end %>
