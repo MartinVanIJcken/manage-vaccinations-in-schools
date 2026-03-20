@@ -1,10 +1,22 @@
 # frozen_string_literal: true
 
 class PatientSessions::ConsentsController < PatientSessions::BaseController
-  before_action :set_consent, except: %i[create send_request]
+  before_action :set_consent, except: %i[new create send_request]
   before_action :ensure_can_withdraw, only: %i[edit_withdraw update_withdraw]
   before_action :ensure_can_invalidate,
                 only: %i[edit_invalidate update_invalidate]
+
+  def new
+    authorize Consent
+
+    @draft_consent = DraftConsent.new(request_session: session, current_user:)
+
+    @draft_consent.clear_attributes
+    @draft_consent.assign_attributes(create_params)
+    @draft_consent.save!
+
+    redirect_to draft_consent_path(Wicked::FIRST_STEP)
+  end
 
   def create
     authorize Consent
