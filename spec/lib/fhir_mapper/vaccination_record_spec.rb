@@ -753,9 +753,7 @@ describe FHIRMapper::VaccinationRecord do
         its(:delivery_site) { should eq "left_arm_upper_position" }
         its(:full_dose) { should be true }
 
-        its(:location_name) do
-          should eq FHIRMapper::Location::UNKNOWN_IDENTIFIER
-        end
+        its(:location_name) { should eq "Unknown" }
 
         its(:outcome) { should eq "administered" }
         its(:performed_ods_code) { should eq "B0C4P" }
@@ -924,9 +922,7 @@ describe FHIRMapper::VaccinationRecord do
 
         its(:location) { should be_nil }
 
-        its(:location_name) do
-          should eq FHIRMapper::Location::UNKNOWN_IDENTIFIER
-        end
+        its(:location_name) { should eq "Unknown" }
 
         its(:notes) { should be_nil }
       end

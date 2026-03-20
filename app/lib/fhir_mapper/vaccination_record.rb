@@ -94,7 +94,15 @@ module FHIRMapper
         end
       end
 
-      attrs[:location_name] = location_value if attrs[:location].nil?
+      if attrs[:location].nil?
+        attrs[:location_name] = (
+          if location_value == FHIRMapper::Location::UNKNOWN_IDENTIFIER
+            "Unknown"
+          else
+            location_value
+          end
+        )
+      end
 
       performer_ods_code = org_performer_ods_code_from_fhir(fhir_record)
       unless performer_ods_code == FHIRMapper::Location::UNKNOWN_IDENTIFIER

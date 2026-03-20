@@ -31,7 +31,7 @@ describe FHIRMapper::Location do
         context "ods code is not set" do
           let(:location) { create(:community_clinic, ods_code: nil) }
 
-          its(:value) { should eq described_class::UNKNOWN_IDENTIFIER }
+          its(:value) { should eq "X99999" }
         end
       end
     end
