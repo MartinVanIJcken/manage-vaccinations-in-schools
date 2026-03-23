@@ -2,6 +2,13 @@
 
 class PatientSessions::ConsentsController < PatientSessions::BaseController
   before_action :set_consent, except: %i[create send_request]
+  before_action :set_consent_refusal_form,
+                only: %i[
+                  edit_follow_up
+                  update_follow_up
+                  edit_confirm_refusal
+                  update_confirm_refusal
+                ]
   before_action :ensure_can_follow_up,
                 only: %i[
                   edit_follow_up
@@ -63,25 +70,30 @@ class PatientSessions::ConsentsController < PatientSessions::BaseController
   end
 
   def update_follow_up
-    if follow_up_params[:decision_stands].nil?
-      @consent.errors.add(:decision_stands, :blank)
-      render :follow_up, status: :unprocessable_content
-    elsif follow_up_params[:decision_stands] == "true"
-      redirect_to confirm_refusal_session_patient_programme_consent_path
-    else
-      @draft_consent = DraftConsent.new(request_session: session, current_user:)
-      @draft_consent.clear_attributes
-      @draft_consent.assign_attributes(create_params)
-      @draft_consent.follow_up_consent_id = @consent.id
-      @draft_consent.follow_up_flow = true
-      @draft_consent.new_or_existing_contact = @consent.parent_id.to_s
-      @draft_consent.route = @consent.route
+    @form.wizard_step = :follow_up
+    @form.assign_attributes(follow_up_params)
 
-      if @draft_consent.save
-        redirect_to draft_consent_path("agree")
+    if @form.save
+      if @form.decision_stands?
+        redirect_to confirm_refusal_session_patient_programme_consent_path
       else
-        render :follow_up, status: :unprocessable_content
+        @draft_consent =
+          DraftConsent.new(request_session: session, current_user:)
+        @draft_consent.clear_attributes
+        @draft_consent.assign_attributes(create_params)
+        @draft_consent.follow_up_consent_id = @consent.id
+        @draft_consent.follow_up_flow = true
+        @draft_consent.new_or_existing_contact = @consent.parent_id.to_s
+        @draft_consent.route = @consent.route
+
+        if @draft_consent.save
+          redirect_to draft_consent_path("agree")
+        else
+          render :follow_up, status: :unprocessable_content
+        end
       end
+    else
+      render :follow_up, status: :unprocessable_content
     end
   end
 
@@ -90,29 +102,35 @@ class PatientSessions::ConsentsController < PatientSessions::BaseController
   end
 
   def update_confirm_refusal
-    if confirm_refusal_params[:confirmed].nil?
-      @consent.errors.add(:confirmed, :blank)
-      render :confirm_refusal, status: :unprocessable_content
-    elsif confirm_refusal_params[:confirmed] == "true"
-      ActiveRecord::Base.transaction do
-        @consent.resolve_follow_up!(
-          outcome: "confirmed",
-          notes: confirm_refusal_params[:notes].to_s
+    @form.wizard_step = :confirm_refusal
+    @form.assign_attributes(confirm_refusal_params)
+
+    if @form.save
+      if @form.confirmed?
+        ActiveRecord::Base.transaction do
+          @consent.resolve_follow_up!(
+            outcome: "confirmed",
+            notes: confirm_refusal_params[:notes].to_s
+          )
+        end
+
+        @consent.notifier.send_confirmation(
+          session: @session,
+          triage: nil,
+          sent_by: current_user
         )
+
+        @form.clear!
+        redirect_to session_patient_programme_consent_path,
+                    flash: {
+                      success: "Consent from #{@consent.name} updated."
+                    }
+      else
+        @form.clear!
+        redirect_to session_patient_programme_consent_path
       end
-
-      @consent.notifier.send_confirmation(
-        session: @session,
-        triage: nil,
-        sent_by: current_user
-      )
-
-      redirect_to session_patient_programme_consent_path,
-                  flash: {
-                    success: "Consent from #{@consent.name} updated."
-                  }
     else
-      redirect_to session_patient_programme_consent_path
+      render :confirm_refusal, status: :unprocessable_content
     end
   end
 
@@ -173,6 +191,10 @@ class PatientSessions::ConsentsController < PatientSessions::BaseController
         .find(params[:id])
   end
 
+  def set_consent_refusal_form
+    @form = ConsentRefusalFollowUpForm.new(request_session: session)
+  end
+
   def update_patient_status
     @consent.invalidate_all_triages_and_patient_specific_directions!
 
@@ -201,11 +223,13 @@ class PatientSessions::ConsentsController < PatientSessions::BaseController
   end
 
   def follow_up_params
-    params.permit(consent: :decision_stands)[:consent] || {}
+    params.fetch(:consent_refusal_follow_up_form, {}).permit(:decision_stands)
   end
 
   def confirm_refusal_params
-    params.permit(consent: %i[confirmed notes])[:consent] || {}
+    params.fetch(:consent_refusal_follow_up_form, {}).permit(
+      %i[confirmed notes]
+    )
   end
 
   def withdraw_params
