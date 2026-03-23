@@ -90,16 +90,16 @@ describe ImportantNotice do
   end
 
   describe "#can_dismiss?" do
-    subject(:notice) do
+    subject(:can_dismiss) { important_notice.can_dismiss? }
+
+    let(:important_notice) do
       create(:important_notice, :invalidated, team_id: team.id, patient:)
     end
 
     context "important notices for archived patients can be dismissed" do
       before { create(:archive_reason, :moved_out_of_area, team:, patient:) }
 
-      it "dismiss option should be true" do
-        expect(notice.can_dismiss?).to be(true)
-      end
+      it { should be(true) }
     end
   end
 end
