@@ -91,6 +91,6 @@ class ImportantNotice < ApplicationRecord
 
   def can_dismiss?
     type.in?(%w[deceased restricted gillick_no_notify team_changed]) ||
-      patient.archived?(team:)
+      patient.archived?(team: Team.all.find(team_id))
   end
 end
