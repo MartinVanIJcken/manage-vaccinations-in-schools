@@ -37,7 +37,7 @@ FactoryBot.define do
     trait :to_school do
       home_educated { nil }
       team { nil }
-      school
+      school { association(:gias_school) }
     end
 
     trait :to_home_educated do

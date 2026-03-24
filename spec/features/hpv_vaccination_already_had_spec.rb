@@ -33,7 +33,7 @@ describe "HPV vaccination" do
   def given_i_am_signed_in
     programmes = [Programme.hpv]
     team = create(:team, :with_one_nurse, programmes:)
-    location = create(:school, team:)
+    location = create(:gias_school, team:)
     @batch = create(:batch, team:, vaccine: programmes.first.vaccines.first)
     @session = create(:session, team:, programmes:, location:)
     @patient =

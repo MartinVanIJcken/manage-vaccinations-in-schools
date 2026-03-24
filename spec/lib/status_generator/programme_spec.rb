@@ -20,7 +20,7 @@ describe StatusGenerator::Programme do
   let(:programme) { Programme.sample }
   let(:session) { create(:session, programmes: [programme]) }
   let(:patient) { create(:patient, session:) }
-  let(:location) { create(:school) }
+  let(:location) { create(:gias_school) }
 
   context "when already vaccinated" do
     let(:programme) { Programme.hpv }

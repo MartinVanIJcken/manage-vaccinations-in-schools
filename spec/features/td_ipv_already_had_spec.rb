@@ -91,7 +91,7 @@ describe "Td/IPV" do
       if clinic
         create(:generic_clinic, team:)
       else
-        create(:school, :secondary, urn: 123_456, team:)
+        create(:gias_school, :secondary, urn: 123_456, team:)
       end
 
     create(:community_clinic, name: "Waterloo Hospital", team:)

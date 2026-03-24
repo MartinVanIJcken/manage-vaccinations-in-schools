@@ -2,7 +2,7 @@
 
 module FHIRMapper
   class Location
-    delegate :school?, :clinic?, :type, :urn, :ods_code, to: :@location
+    delegate :gias_school?, :clinic?, :type, :urn, :ods_code, to: :@location
 
     def initialize(location)
       @location = location
@@ -12,7 +12,7 @@ module FHIRMapper
     end
 
     def fhir_reference
-      if school?
+      if gias_school?
         value = urn || "X99999"
         system = "https://fhir.hl7.org.uk/Id/urn-school-number"
       elsif clinic?
