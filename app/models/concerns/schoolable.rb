@@ -27,8 +27,7 @@ module Schoolable
 
   def school_is_correct_type
     location = school
-    # TODO: school?
-    if location && !(location.gias_school? || location.generic_school?)
+    if location && !location.school?
       errors.add(:school, "must be a school location type")
     end
   end
