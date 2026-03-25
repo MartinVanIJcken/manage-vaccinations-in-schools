@@ -99,25 +99,21 @@ describe "HPV vaccination identity check" do
   end
 
   def and_i_record_a_vaccination_was_given
-    within all("section")[0] do
-      check "I have checked that the above statements are true"
-    end
+    check "I have checked that the above statements are true"
 
-    within all("section")[1] do
+    within("fieldset", text: /ready for their/) do
       choose "Yes"
       choose "Left arm (upper position)"
-      click_button "Continue"
     end
+    click_button "Continue"
 
     choose @batch.number
     click_button "Continue"
   end
 
   def and_i_record_that_the_patient_was_unwell
-    within all("section")[1] do
-      choose "No"
-      click_button "Continue"
-    end
+    within("fieldset", text: /ready for their/) { choose "No" }
+    click_button "Continue"
 
     choose "They were not well enough"
     click_button "Continue"

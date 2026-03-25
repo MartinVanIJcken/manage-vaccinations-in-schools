@@ -181,29 +181,25 @@ describe "MMRV vaccination" do
   def when_i_begin_recording_the_vaccination_for_mmrv
     expect(page).to have_content("Record MMRV vaccination")
 
-    within all("section")[0] do
-      check "I have checked that the above statements are true"
-    end
+    check "I have checked that the above statements are true"
 
-    within all("section")[1] do
+    within("fieldset", text: /ready for their/) do
       choose "Yes"
       choose "Left arm (upper position)"
-      click_button "Continue"
     end
+    click_button "Continue"
   end
 
   def and_i_begin_recording_the_vaccination_for_mmr
     expect(page).to have_content("Record MMR vaccination")
 
-    within all("section")[0] do
-      check "I have checked that the above statements are true"
-    end
+    check "I have checked that the above statements are true"
 
-    within all("section")[1] do
+    within("fieldset", text: /ready for their/) do
       choose "Yes"
       choose "Left arm (upper position)"
-      click_button "Continue"
     end
+    click_button "Continue"
   end
 
   def then_i_should_only_see_the_mmrv_batch_options
@@ -276,7 +272,7 @@ describe "MMRV vaccination" do
   end
 
   def and_i_should_see_a_triage_for_the_next_vaccination_dose
-    expect(page).to have_content("MMRV: Delay vaccination")
+    expect(page).to have_content("MMRV: Unable to vaccinate")
     expect(page).to have_content("Next dose 29 October 2024")
   end
 
@@ -285,7 +281,7 @@ describe "MMRV vaccination" do
   end
 
   def and_i_start_a_new_consent_response
-    click_button "Record a new consent response"
+    click_on "Record a new consent response"
   end
 
   def and_i_get_consent_for_mmr

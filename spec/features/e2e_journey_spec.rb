@@ -223,7 +223,7 @@ describe "End-to-end journey" do
     within(".app-secondary-navigation") { click_link "Children" }
     click_link "TABLES, Bobby"
 
-    click_button "Record a new consent response"
+    click_on "Record a new consent response"
 
     choose "Big Daddy Tests"
     click_button "Continue"
@@ -253,7 +253,8 @@ describe "End-to-end journey" do
   end
 
   def when_i_click_on_the_register_attendance_section
-    click_link "Pilot School"
+    session = Session.sole
+    click_on "#{session.programmes.map(&:name).to_sentence} session at #{session.location.name}"
     within(".app-secondary-navigation") { click_link "Children" }
   end
 
@@ -271,15 +272,13 @@ describe "End-to-end journey" do
 
     expect(page).to have_content("Update attendance")
 
-    within all("section")[0] do
-      check "I have checked that the above statements are true"
-    end
+    check "I have checked that the above statements are true"
 
-    within all("section")[1] do
+    within("fieldset", text: /ready for their/) do
       choose "Yes"
       choose "Left arm (upper position)"
-      click_button "Continue"
     end
+    click_button "Continue"
 
     choose @batch.number
     click_button "Continue"

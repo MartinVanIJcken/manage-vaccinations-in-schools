@@ -235,15 +235,13 @@ describe "MMR vaccination" do
   end
 
   def when_i_record_that_the_patient_has_been_vaccinated
-    within all("section")[0] do
-      check "I have checked that the above statements are true"
-    end
+    check "I have checked that the above statements are true"
 
-    within all("section")[1] do
+    within("fieldset", text: /ready for their/) do
       choose "Yes"
       choose "Left arm (upper position)"
-      click_button "Continue"
     end
+    click_button "Continue"
   end
 
   def then_i_see_only_the_vaccine_without_gelatine
@@ -327,7 +325,7 @@ describe "MMR vaccination" do
   end
 
   def then_i_should_see_a_triage_for_the_next_vaccination_dose
-    expect(page).to have_content("MMR: Delay vaccination")
+    expect(page).to have_content("MMR: Unable to vaccinate")
     expect(page).to have_content("Next dose 29 October 2024")
   end
 

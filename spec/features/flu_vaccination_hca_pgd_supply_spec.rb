@@ -146,9 +146,7 @@ describe "Flu vaccination" do
 
     check "I have checked that the above statements are true"
     select "NURSE, Supplying"
-    within all("section")[1] do
-      choose "Yes"
-    end
+    within("fieldset", text: /ready for their/) { choose "Yes" }
     click_on "Continue"
 
     choose @batch.number

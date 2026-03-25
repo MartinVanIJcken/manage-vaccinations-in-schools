@@ -37,10 +37,9 @@ describe "Community clinic vaccination session" do
     visit session_record_path(@session)
     click_link @patient.full_name
 
-    within all("section")[1] do
-      choose "No"
-      click_button "Continue"
-    end
+    within("fieldset", text: /ready for their/) { choose "No" }
+
+    click_button "Continue"
 
     choose "They refused"
     click_button "Continue"

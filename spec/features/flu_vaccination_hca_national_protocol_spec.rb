@@ -172,7 +172,7 @@ describe "Flu vaccination" do
   def then_i_am_able_to_vaccinate_them(nasal:)
     check "I have checked that the above statements are true"
     select @nurse.full_name
-    within all("section")[1] do
+    within("fieldset", text: /ready for their/) do
       choose "Yes"
       choose "Left arm (upper position)" unless nasal
     end
@@ -198,7 +198,7 @@ describe "Flu vaccination" do
   def then_i_am_able_to_vaccinate_them_using_injection_instead_of_nasal
     check "I have checked that the above statements are true"
 
-    within all("section")[1] do
+    within("fieldset", text: /ready for their/) do
       choose "No — but they can have the injected flu instead"
       choose "Left arm (upper position)"
       select @nurse.full_name

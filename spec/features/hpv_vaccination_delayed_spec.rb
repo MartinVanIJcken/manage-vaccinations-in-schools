@@ -52,10 +52,8 @@ describe "HPV vaccination" do
   end
 
   def and_i_record_that_the_patient_was_unwell
-    within all("section")[1] do
-      choose "No"
-      click_button "Continue"
-    end
+    within("fieldset", text: /ready for their/) { choose "No" }
+    click_button "Continue"
 
     choose "They were not well enough"
     click_button "Continue"
@@ -95,7 +93,7 @@ describe "HPV vaccination" do
   end
 
   def when_i_go_to_the_children_tab
-    click_on @session.location.name
+    click_on "#{@session.programmes.map(&:name).to_sentence} session at #{@session.location.name}"
     within(".app-secondary-navigation") { click_on "Children" }
   end
 

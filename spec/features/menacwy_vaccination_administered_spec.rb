@@ -99,15 +99,13 @@ describe "MenACWY vaccination" do
   end
 
   def and_i_record_that_the_patient_has_been_vaccinated
-    within all("section")[0] do
-      check "I have checked that the above statements are true"
-    end
+    check "I have checked that the above statements are true"
 
-    within all("section")[1] do
+    within("fieldset", text: /ready for their/) do
       choose "Yes"
       choose "Left arm (upper position)"
-      click_button "Continue"
     end
+    click_button "Continue"
   end
 
   def and_i_see_only_not_expired_batches
@@ -196,8 +194,8 @@ describe "MenACWY vaccination" do
   end
 
   def and_i_see_the_vaccination_details
-    expect(page).to have_content("Vaccination records")
-    click_on Date.current.to_fs(:long)
+    expect(page).to have_content("Vaccination outcomes")
+    click_on Time.current.to_fs(:long)
 
     expect(page).to have_content("Vaccination details")
     expect(page).to have_content("Dose number1st")

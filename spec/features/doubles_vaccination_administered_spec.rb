@@ -77,11 +77,11 @@ describe "MenACWY and Td/IPV vaccination" do
   end
 
   def and_i_record_the_vaccination(batch)
-    within all("section")[1] do
+    within("fieldset", text: /ready for their/) do
       choose "Yes"
       choose "Left arm (upper position)"
-      click_button "Continue"
     end
+    click_button "Continue"
 
     choose batch.number
     click_on "Continue"

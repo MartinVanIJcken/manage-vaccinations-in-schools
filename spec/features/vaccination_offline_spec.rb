@@ -35,7 +35,8 @@ describe "Offline vaccination" do
     then_i_see_the_successful_import
     when_i_navigate_to_the_clinic_page
     then_i_see_the_uploaded_vaccination_outcomes_reflected_in_the_session
-    and_the_clinic_location_is_displayed
+    when_i_click_on_the_vaccination
+    then_the_clinic_location_is_displayed
 
     when_vaccination_confirmations_are_sent
     then_an_email_is_sent_to_the_parent_confirming_the_vaccination
@@ -584,7 +585,11 @@ describe "Offline vaccination" do
     expect(page).to have_content("Vaccinated")
   end
 
-  def and_the_clinic_location_is_displayed
+  def when_i_click_on_the_vaccination
+    click_on "1 February 2024 at 12:00pm"
+  end
+
+  def then_the_clinic_location_is_displayed
     expect(page).to have_content("Westfield Shopping Centre")
   end
 

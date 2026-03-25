@@ -219,23 +219,18 @@ describe "Flu vaccination" do
   def when_i_record_that_the_patient_has_been_vaccinated_with_nasal_spray(
     check_injection_first: false
   )
-    within all("section")[0] do
-      check "I have checked that the above statements are true"
-      choose "Yes" # confirmed identity
-    end
+    check "I have checked that the above statements are true"
 
     # Check that I can change my mind injection to nasal.
     if check_injection_first
-      within all("section")[1] do
+      within("fieldset", text: /ready for their/) do
         choose "No — but they can have the injected flu instead"
         choose "Left arm (upper position)"
       end
     end
 
-    within all("section")[1] do
-      choose "Yes"
-      click_button "Continue"
-    end
+    within("fieldset", text: /ready for their/) { choose "Yes" }
+    click_button "Continue"
 
     choose @nasal_batch.number
     click_button "Continue"
@@ -244,30 +239,26 @@ describe "Flu vaccination" do
   end
 
   def when_i_record_that_the_patient_has_been_vaccinated_with_injection
-    within all("section")[0] do
-      check "I have checked that the above statements are true"
-    end
+    check "I have checked that the above statements are true"
 
-    within all("section")[1] do
+    within("fieldset", text: /ready for their/) do
       choose "Yes"
       choose "Left arm (upper position)"
-      click_button "Continue"
     end
+    click_button "Continue"
 
     choose @injection_batch.number
     click_button "Continue"
   end
 
   def when_i_record_that_the_patient_has_been_vaccinated_with_injection_instead
-    within all("section")[0] do
-      check "I have checked that the above statements are true"
-    end
+    check "I have checked that the above statements are true"
 
-    within all("section")[1] do
+    within("fieldset", text: /ready for their/) do
       choose "No — but they can have the injected flu instead"
       choose "Left arm (upper position)"
-      click_button "Continue"
     end
+    click_button "Continue"
 
     choose @injection_batch.number
     click_button "Continue"
