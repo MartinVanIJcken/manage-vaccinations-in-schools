@@ -17,11 +17,6 @@ class VaccinationRecordPolicy < ApplicationPolicy
 
   def show? = team.is_sais_team?
 
-  def record_already_vaccinated?
-    (user.is_nurse? || user.is_prescriber?) && !session.today? &&
-      !patient.programme_status(programme, academic_year:).vaccinated?
-  end
-
   def update?
     if team.has_point_of_care_access?
       (
