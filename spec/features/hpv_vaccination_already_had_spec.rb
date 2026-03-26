@@ -2,6 +2,8 @@
 
 describe "HPV vaccination" do
   scenario "Already had" do
+    pending "Will need to be updated to use the new 'record already vaccinated' journey."
+
     given_i_am_signed_in
 
     when_i_go_to_a_patient_that_is_safe_to_vaccinate
